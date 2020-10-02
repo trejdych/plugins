@@ -6,6 +6,10 @@
 #import "FLTWKNavigationDelegate.h"
 #import "JavaScriptChannelHandler.h"
 
+@interface FLTWKWebView ()
+- (void)updateInsets;
+@end
+
 @implementation FLTWebViewFactory {
   NSObject<FlutterBinaryMessenger>* _messenger;
 }
@@ -38,20 +42,24 @@
 
 - (void)setFrame:(CGRect)frame {
   [super setFrame:frame];
-  self.scrollView.contentInset = UIEdgeInsetsZero;
-  // We don't want the contentInsets to be adjusted by iOS, flutter should always take control of
-  // webview's contentInsets.
-  // self.scrollView.contentInset = UIEdgeInsetsZero;
-  if (@available(iOS 11, *)) {
-    // Above iOS 11, adjust contentInset to compensate the adjustedContentInset so the sum will
-    // always be 0.
-    if (UIEdgeInsetsEqualToEdgeInsets(self.scrollView.adjustedContentInset, UIEdgeInsetsZero)) {
-      return;
+  [self updateInsets];
+}
+
+- (void)updateInsets {
+    self.scrollView.contentInset = UIEdgeInsetsZero;
+    // We don't want the contentInsets to be adjusted by iOS, flutter should always take control of
+    // webview's contentInsets.
+    // self.scrollView.contentInset = UIEdgeInsetsZero;
+    if (@available(iOS 11, *)) {
+      // Above iOS 11, adjust contentInset to compensate the adjustedContentInset so the sum will
+      // always be 0.
+      if (UIEdgeInsetsEqualToEdgeInsets(self.scrollView.adjustedContentInset, UIEdgeInsetsZero)) {
+        return;
+      }
+      UIEdgeInsets insetToAdjust = self.scrollView.adjustedContentInset;
+      self.scrollView.contentInset = UIEdgeInsetsMake(-insetToAdjust.top, -insetToAdjust.left,
+                                                      -insetToAdjust.bottom, -insetToAdjust.right);
     }
-    UIEdgeInsets insetToAdjust = self.scrollView.adjustedContentInset;
-    self.scrollView.contentInset = UIEdgeInsetsMake(-insetToAdjust.top, -insetToAdjust.left,
-                                                    -insetToAdjust.bottom, -insetToAdjust.right);
-  }
 }
 
 @end
@@ -92,6 +100,7 @@
                         inConfiguration:configuration];
 
     _webView = [[FLTWKWebView alloc] initWithFrame:frame configuration:configuration];
+      [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillChangeFrameNotification) name:UIKeyboardWillChangeFrameNotification object:nil];
     _navigationDelegate = [[FLTWKNavigationDelegate alloc] initWithChannel:_channel];
     _webView.UIDelegate = self;
     _webView.navigationDelegate = _navigationDelegate;
@@ -117,6 +126,10 @@
     }
   }
   return self;
+}
+
+- (void)keyboardWillChangeFrameNotification {
+    [_webView updateInsets];
 }
 
 - (UIView*)view {
