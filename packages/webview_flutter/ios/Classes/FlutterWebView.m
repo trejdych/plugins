@@ -5,6 +5,7 @@
 #import "FlutterWebView.h"
 #import "FLTWKNavigationDelegate.h"
 #import "JavaScriptChannelHandler.h"
+#import "FLTWKConfigurationManager.h"
 
 @interface FLTWKWebView ()
 - (void)updateInsets;
