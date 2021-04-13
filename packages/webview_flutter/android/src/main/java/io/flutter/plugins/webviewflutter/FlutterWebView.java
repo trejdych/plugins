@@ -83,7 +83,7 @@ public class FlutterWebView implements PlatformView, MethodCallHandler {
       final Context context = webView.getContext();
       final String title = context.getResources().getString(R.string.webview_file_chooser_title);
       final String type = context.getResources().getString(R.string.webview_file_chooser_type);
-      new FileChooserLauncher(context, title, type, true, filePathCallback).start();
+      new FileChooserLauncher(context, title, type, true, filePathCallback, fileChooserParams).start();
       return true;
     }
   }
