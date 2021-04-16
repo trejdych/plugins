@@ -11,6 +11,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import java.util.Arrays;
+import java.util.List;
 import android.net.Uri;
 import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient.*;
@@ -74,8 +75,9 @@ public class FileChooserLauncher extends BroadcastReceiver {
         Intent intent = new Intent(context, FileChooserActivity.class);
         intent.putExtra(EXTRA_TITLE, title);
         intent.putExtra(EXTRA_TYPE, acceptTypes);
-
-        intent.putExtra(EXTRA_SHOW_CAMERA_OPTION, Arrays.asList(acceptTypes).contains("image/*"));
+        
+        List<String> acceptTypesList = Arrays.asList(acceptTypes);
+        intent.putExtra(EXTRA_SHOW_CAMERA_OPTION, acceptTypesList.contains("image/*") || acceptTypesList.contains("image/jpeg"));
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         context.startActivity(intent);
     }
