@@ -10,18 +10,20 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
-import java.util.Arrays;
-import java.util.List;
 import android.net.Uri;
 import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient.*;
 
 import androidx.core.content.ContextCompat;
 
+import java.util.Arrays;
+import java.util.List;
+import android.util.Log;
 import static io.flutter.plugins.webviewflutter.Constants.ACTION_FILE_CHOOSER_FINISHED;
 import static io.flutter.plugins.webviewflutter.Constants.ACTION_REQUEST_CAMERA_PERMISSION_FINISHED;
 import static io.flutter.plugins.webviewflutter.Constants.EXTRA_FILE_URI;
 import static io.flutter.plugins.webviewflutter.Constants.EXTRA_SHOW_CAMERA_OPTION;
+import static io.flutter.plugins.webviewflutter.Constants.EXTRA_SHOW_VIDEO_OPTION;
 import static io.flutter.plugins.webviewflutter.Constants.EXTRA_TITLE;
 import static io.flutter.plugins.webviewflutter.Constants.EXTRA_TYPE;
 
@@ -75,9 +77,16 @@ public class FileChooserLauncher extends BroadcastReceiver {
         Intent intent = new Intent(context, FileChooserActivity.class);
         intent.putExtra(EXTRA_TITLE, title);
         intent.putExtra(EXTRA_TYPE, acceptTypes);
-        
+
         List<String> acceptTypesList = Arrays.asList(acceptTypes);
-        intent.putExtra(EXTRA_SHOW_CAMERA_OPTION, acceptTypesList.contains("image/*") || acceptTypesList.contains("image/jpeg"));
+        intent.putExtra(
+                EXTRA_SHOW_CAMERA_OPTION,
+                acceptTypesList.contains("image/*") || acceptTypesList.contains("image/jpeg")
+        );
+        intent.putExtra(
+                EXTRA_SHOW_VIDEO_OPTION,
+                acceptTypesList.contains("video/*") || acceptTypesList.contains("video/mp4")
+        );
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         context.startActivity(intent);
     }

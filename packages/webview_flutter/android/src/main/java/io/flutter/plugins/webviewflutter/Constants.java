@@ -12,6 +12,7 @@ public class Constants {
   static final String EXTRA_TITLE = "extra_title";
   static final String EXTRA_TYPE = "extra_type";
   static final String EXTRA_SHOW_CAMERA_OPTION = "extra_show_camera_option";
+  static final String EXTRA_SHOW_VIDEO_OPTION = "extra_show_video_option";
   static final String EXTRA_FILE_URI = "extra_file_uri";
 
   static final String WEBVIEW_STORAGE_DIRECTORY = "storage";

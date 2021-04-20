@@ -29,6 +29,7 @@ import java.util.Date;
 import static io.flutter.plugins.webviewflutter.Constants.ACTION_FILE_CHOOSER_FINISHED;
 import static io.flutter.plugins.webviewflutter.Constants.EXTRA_FILE_URI;
 import static io.flutter.plugins.webviewflutter.Constants.EXTRA_SHOW_CAMERA_OPTION;
+import static io.flutter.plugins.webviewflutter.Constants.EXTRA_SHOW_VIDEO_OPTION;
 import static io.flutter.plugins.webviewflutter.Constants.EXTRA_TITLE;
 import static io.flutter.plugins.webviewflutter.Constants.EXTRA_TYPE;
 import static io.flutter.plugins.webviewflutter.Constants.WEBVIEW_STORAGE_DIRECTORY;
@@ -43,25 +44,30 @@ public class FileChooserActivity extends Activity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        showFileChooser(getIntent().getBooleanExtra(EXTRA_SHOW_CAMERA_OPTION, false));
+        showFileChooser(getIntent().getBooleanExtra(EXTRA_SHOW_CAMERA_OPTION, false),
+                getIntent().getBooleanExtra(EXTRA_SHOW_VIDEO_OPTION, false));
     }
 
-    private void showFileChooser(boolean enableCamera) {
+    private void showFileChooser(boolean enableCamera, boolean enableVideo) {
         Intent galleryIntent = createGalleryIntent();
         Intent takePictureIntent = enableCamera ? createCameraIntent() : null;
+        Intent takeVideoIntent = enableVideo ? createVideoIntent() : null;
+        Log.d("FileChooserActivity", "Enable video is " + enableVideo);
         if (galleryIntent == null && takePictureIntent == null) {
             // cannot open anything: cancel file chooser
             sendBroadcast(new Intent(ACTION_FILE_CHOOSER_FINISHED));
             finish();
         } else {
-            Intent[] intentArray =
-                    takePictureIntent != null ? new Intent[]{takePictureIntent} : new Intent[]{};
+            ArrayList<Intent> intentArrayList = new ArrayList<>();
+
+            if (takePictureIntent != null) intentArrayList.add(takePictureIntent);
+            if (takeVideoIntent != null) intentArrayList.add(takeVideoIntent);
 
             Intent chooserIntent = new Intent(Intent.ACTION_CHOOSER);
             chooserIntent.putExtra(
                     Intent.EXTRA_INTENT, galleryIntent != null ? galleryIntent : takePictureIntent);
             chooserIntent.putExtra(Intent.EXTRA_TITLE, getIntent().getStringExtra(EXTRA_TITLE));
-            chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, intentArray);
+            chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, intentArrayList.toArray(new Intent[0]));
 
             startActivityForResult(chooserIntent, FILE_CHOOSER_REQUEST_CODE);
         }
@@ -80,6 +86,15 @@ public class FileChooserActivity extends Activity {
         filesIntent.putExtra(Intent.EXTRA_MIME_TYPES, mimeTypes.toArray());
 
         return (filesIntent.resolveActivity(getPackageManager()) != null) ? filesIntent : null;
+    }
+
+    private Intent createVideoIntent() {
+        Intent takeVideoIntent = new Intent(MediaStore.ACTION_VIDEO_CAPTURE);
+        takeVideoIntent.putExtra(MediaStore.EXTRA_SIZE_LIMIT, 20971520L);//20*1024*1024
+        if (takeVideoIntent.resolveActivity(getPackageManager()) == null) {
+            return null;
+        }
+        return takeVideoIntent;
     }
 
     private Intent createCameraIntent() {

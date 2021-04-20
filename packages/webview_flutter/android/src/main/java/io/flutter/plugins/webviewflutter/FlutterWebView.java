@@ -431,6 +431,8 @@ public class FlutterWebView implements PlatformView, MethodCallHandler {
   @Override
   public void dispose() {
     methodChannel.setMethodCallHandler(null);
+    webView.clearCache(true);
+    WebStorage.getInstance().deleteAllData();
     webView.dispose();
     webView.destroy();
   }
